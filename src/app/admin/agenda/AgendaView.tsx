@@ -1,0 +1,323 @@
+
+"use client";
+
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { format, isSameDay } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { DayPicker, DayProps, Day } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import type { Availability, Booking, Procedure } from '@/lib/types';
+import { Calendar as CalendarIcon, Clock, User, CheckCircle, Loader2, PlusCircle, Trash2, Check, X, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { markBookingAsCompleted, getBookings, getAvailability, updateBookingStatus, deleteBookingAndRestoreTime } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+import AdminBookingDialog from './AdminBookingDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
+
+
+interface AgendaViewProps {
+  initialBookings: Booking[];
+  procedures: Procedure[];
+  initialAvailability: Availability;
+}
+
+export default function AgendaView({ initialBookings, procedures, initialAvailability }: AgendaViewProps) {
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [availability, setAvailability] = useState<Availability>(initialAvailability);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    setSelectedDate(new Date());
+  }, [])
+
+
+  const fetchAllData = async () => {
+    try {
+      const [freshBookings, freshAvailability] = await Promise.all([
+          getBookings(),
+          getAvailability()
+      ]);
+      const relevantBookings = freshBookings.filter(b => b.status === 'confirmed' || b.status === 'completed');
+      setBookings(relevantBookings);
+      setAvailability(freshAvailability);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  
+  const onBookingCreated = async () => {
+    setIsDialogOpen(false);
+    await fetchAllData();
+  };
+
+  const handleMarkAsCompleted = async (bookingId: string, price: number) => {
+    setIsLoading(prev => ({ ...prev, [bookingId]: true }));
+    try {
+      await markBookingAsCompleted(bookingId, price);
+      toast({ title: "Atendimento finalizado!", description: "O valor foi contabilizado no seu faturamento." });
+      await fetchAllData();
+    } catch (error) {
+      console.error("Error marking as completed:", error);
+      toast({ title: "Erro ao finalizar atendimento", variant: "destructive" });
+    } finally {
+      setIsLoading(prev => ({ ...prev, [bookingId]: false }));
+    }
+  };
+  
+  const openCancelAlert = (booking: Booking) => {
+    setBookingToCancel(booking);
+    setIsAlertOpen(true);
+  }
+
+  const handleCancelBooking = async () => {
+    if (!bookingToCancel) return;
+    
+    setIsLoading(prev => ({ ...prev, [bookingToCancel.id]: true }));
+    setIsAlertOpen(false);
+
+    try {
+      await deleteBookingAndRestoreTime({
+          id: bookingToCancel.id,
+          date: bookingToCancel.date,
+          time: bookingToCancel.time,
+      });
+      toast({ title: 'Agendamento cancelado', description: 'O horário foi liberado novamente.', variant: 'destructive' });
+      setBookingToCancel(null);
+      await fetchAllData();
+    } catch (error) {
+       console.error('Error discarding booking:', error);
+       toast({ title: 'Erro ao cancelar agendamento', variant: 'destructive' });
+    } finally {
+        if(bookingToCancel) {
+            setIsLoading(prev => ({ ...prev, [bookingToCancel.id]: false }));
+        }
+    }
+  };
+
+
+  const bookingsByDate = useMemo(() => {
+    const map = new Map<string, Booking[]>();
+    bookings.forEach(booking => {
+      const dateKey = booking.date; // Already in 'yyyy-MM-dd' format
+      if (!map.has(dateKey)) {
+        map.set(dateKey, []);
+      }
+      map.get(dateKey)?.push(booking);
+      map.get(dateKey)?.sort((a,b) => a.time.localeCompare(b.time));
+    });
+    return map;
+  }, [bookings]);
+
+  const { completedDays, hasConfirmedDays } = useMemo(() => {
+    const completed: Date[] = [];
+    const hasConfirmed: Date[] = [];
+    
+    bookingsByDate.forEach((dayBookings, dateStr) => {
+        const date = new Date(dateStr + 'T12:00:00Z');
+        const hasConfirmedBooking = dayBookings.some(b => b.status === 'confirmed');
+        const allCompleted = dayBookings.every(b => b.status === 'completed');
+
+        if (hasConfirmedBooking) {
+            hasConfirmed.push(date);
+        } else if (allCompleted && dayBookings.length > 0) {
+            completed.push(date);
+        }
+    });
+    return { completedDays: completed, hasConfirmedDays: hasConfirmed };
+  }, [bookingsByDate]);
+
+  const todaysBookings = useMemo(() => {
+    if (!selectedDate) return [];
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    return bookingsByDate.get(dateKey) || [];
+  }, [selectedDate, bookingsByDate]);
+  
+  const CustomDay = (props: DayProps) => {
+    const dateKey = format(props.date, 'yyyy-MM-dd');
+    const bookingsCount = bookingsByDate.get(dateKey)?.length || 0;
+  
+    return (
+      <div className="relative">
+         <Day {...props} />
+         {bookingsCount > 0 && (
+           <Badge
+            variant="secondary"
+            className="absolute -top-1 -right-1 h-4 w-4 p-0 justify-center text-xs rounded-full bg-gray-500 text-white"
+           >
+             {bookingsCount}
+           </Badge>
+         )}
+      </div>
+    );
+  };
+
+
+  return (
+    <>
+    <AdminBookingDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        procedures={procedures}
+        availability={availability}
+        onBookingCreated={onBookingCreated}
+        selectedDate={selectedDate}
+    />
+    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar Agendamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Esta ação irá apagar o agendamento permanentemente e liberar o horário novamente. Deseja continuar?
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading[bookingToCancel?.id || '']}>Não, manter</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelBooking} disabled={isLoading[bookingToCancel?.id || '']}>
+                 {isLoading[bookingToCancel?.id || ''] && <Loader2 className="animate-spin mr-2"/>}
+                Sim, cancelar
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+           <div className="flex justify-between items-center mb-4">
+               <Button asChild variant="outline" size="sm">
+                  <Link href="/admin">
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Voltar
+                  </Link>
+              </Button>
+              <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Agendar
+              </Button>
+           </div>
+           <CardTitle className="text-2xl md:text-3xl text-center">Agenda</CardTitle>
+           <CardDescription className="text-xs pt-1 text-center">
+              As cores no calendário indicam o status dos agendamentos no dia.
+           </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center gap-4">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                initialFocus
+                locale={ptBR}
+                className="rounded-md border"
+                components={{
+                    Day: CustomDay,
+                }}
+                modifiers={{ 
+                  hasConfirmed: hasConfirmedDays,
+                  allCompleted: completedDays,
+                }}
+                modifiersStyles={{ 
+                    hasConfirmed: {
+                        backgroundColor: '#22c55e', // green-500
+                        color: 'white',
+                        borderRadius: '50%',
+                    },
+                    allCompleted: {
+                        backgroundColor: '#ef4444', // red-500
+                        color: 'white',
+                        borderRadius: '50%',
+                    }
+                }}
+              />
+              <div className="space-y-2 text-xs text-muted-foreground w-full flex flex-col items-center md:items-start max-w-xs md:w-auto">
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#22c55e' }}></div>
+                    <span>Dia com agendamento(s) confirmado(s).</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#ef4444' }}></div>
+                    <span>Dia com todos atendimentos finalizados.</span>
+                </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="lg:col-span-3">
+        <CardHeader>
+          <CardTitle className="text-sm md:text-lg">Agendamentos para {selectedDate ? format(selectedDate, "dd 'de' MMMM", { locale: ptBR }) : '...'}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {todaysBookings.length > 0 ? (
+            todaysBookings.map(booking => (
+              <div key={booking.id} className={cn("p-4 rounded-lg border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4", {
+                'bg-card': booking.status !== 'pending'
+              })}>
+                <div className="flex-1 space-y-1">
+                  <p className="flex items-center gap-2 font-semibold text-xs md:text-sm"><User size={16} className="text-primary"/> {booking.clientName}</p>
+                  <p className="text-xs text-muted-foreground">{booking.procedureName}</p>
+                   <Badge variant="secondary" className="flex items-center gap-1.5 text-xs w-fit px-2 py-0.5">
+                      <Clock size={14} />
+                      {booking.time}
+                   </Badge>
+                </div>
+                 <div className="flex items-center gap-2 self-end sm:self-center">
+                   {booking.status === 'completed' && (
+                       <span className="text-sm font-medium text-green-600 flex items-center gap-2"><CheckCircle size={16}/> Finalizado</span>
+                   )}
+                   {booking.status === 'confirmed' && (
+                    <>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-green-600 border-green-600 hover:bg-green-100 hover:text-green-700 h-8 px-2 md:h-9 md:px-3 text-xs"
+                        onClick={() => handleMarkAsCompleted(booking.id, booking.price)}
+                        disabled={isLoading[booking.id]}
+                      >
+                         {isLoading[booking.id] ? <Loader2 className="animate-spin mr-2 h-4 w-4"/> : <CheckCircle className="mr-2 h-4 w-4"/>}
+                         Atendido
+                      </Button>
+                       <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-red-600 border-red-600 hover:bg-red-100 hover:text-red-700 h-8 px-2 text-xs"
+                            onClick={() => openCancelAlert(booking)}
+                            disabled={isLoading[booking.id]}
+                        >
+                           <X className="mr-1 h-3 w-3"/> Cancelar
+                        </Button>
+                    </>
+                   )}
+                 </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground py-8 text-sm md:text-base">Nenhum agendamento para esta data.</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+    </>
+  );
+}
+
+    
