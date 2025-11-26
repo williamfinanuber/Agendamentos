@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 
+export const dynamic = 'force-dynamic';
 
 // We need a client component to handle the refetching logic
 const ClientDynamicAgenda = (props: { initialBookings: Booking[] }) => {
