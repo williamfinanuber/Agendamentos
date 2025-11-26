@@ -2,7 +2,7 @@
 
 import { getBookings } from '@/lib/firebase';
 import type { Booking } from '@/lib/types';
-import RemindersClientPage from './RemindersClientPage';
+import RemindersClientPage from '../admin/reminders/RemindersClientPage';
 import { Suspense } from 'react';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
