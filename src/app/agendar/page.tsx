@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { getProcedures, getAvailabilityForProcedure, getBookingById } from '@/lib/firebase';
 import type { Procedure, Booking, Availability } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
 
 async function BookingDataLoader({ bookingId, procedureId }: { bookingId: string | undefined, procedureId: string | undefined }) {
     
@@ -47,5 +48,3 @@ export default function SchedulePage({ searchParams }: SchedulePageProps) {
     </div>
   );
 }
-
-    

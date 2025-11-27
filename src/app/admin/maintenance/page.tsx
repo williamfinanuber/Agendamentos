@@ -5,6 +5,8 @@ import MaintenanceClientPage from './MaintenanceClientPage';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 async function MaintenanceData() {
     const allBookings = await getBookings();
     // Filter bookings on the server side

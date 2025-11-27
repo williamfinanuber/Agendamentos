@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { Transaction, Category, Booking } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
 
 async function FinanceData() {
     const [initialTransactions, initialCategories, initialBookings] = await Promise.all([

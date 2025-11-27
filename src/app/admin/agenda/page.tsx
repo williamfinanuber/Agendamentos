@@ -8,6 +8,8 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 async function AgendaData() {
   const [allBookings, procedures, availability] = await Promise.all([
     getBookings(),

@@ -5,6 +5,8 @@ import ClientsPageClient from './ClientsPageClient';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 interface Client {
   name: string;
   contact: string;

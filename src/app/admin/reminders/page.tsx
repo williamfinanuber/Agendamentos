@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
+export const dynamic = 'force-dynamic';
+
 async function RemindersData() {
     const allBookings = await getBookings();
     const filteredBookings = allBookings.filter((booking: Booking) => booking.status === 'confirmed');

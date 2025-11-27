@@ -5,6 +5,8 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { Product, StockCategory } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 async function StockData() {
     const [initialProducts, initialCategories] = await Promise.all([
         getProducts(),

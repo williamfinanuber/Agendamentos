@@ -6,6 +6,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 async function ProceduresData() {
   try {
     const procedures = await getProcedures();
