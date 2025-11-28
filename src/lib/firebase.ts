@@ -54,16 +54,12 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 const defaultProcedures: Omit<Procedure, 'id'>[] = [
-  { name: 'Volume Brasileiro', description: 'Técnica que mescla fios finos para um volume natural e marcante.', price: 100, duration: 120, imageUrl: '' },
-  { name: 'Volume Express', description: 'Volume rápido para um look mais cheio em menos tempo.', price: 80, duration: 90, imageUrl: '' },
-  { name: 'Volume Glamour', description: 'Cílios densos e definidos para um olhar glamouroso.', price: 120, duration: 150, imageUrl: '' },
-  { name: 'Volume Luxo', description: 'Máximo de volume e definição para um efeito de luxo.', price: 150, duration: 180, imageUrl: '' },
-  { name: 'Manutenção Volume Brasileiro', description: 'Manutenção da extensão de volume brasileiro.', price: 70, duration: 90, imageUrl: '' },
-  { name: 'Manutenção Volume Glamour', description: 'Manutenção da extensão de volume glamour.', price: 80, duration: 100, imageUrl: '' },
-  { name: 'Manutenção Volume Luxo', description: 'Manutenção da extensão de volume de luxo.', price: 100, duration: 120, imageUrl: '' },
-  { name: 'Remoção', description: 'Remoção segura das extensões de cílios.', price: 30, duration: 30, imageUrl: '' },
-  { name: 'Design de Sobrancelha Simples', description: 'Modelagem e alinhamento das sobrancelhas.', price: 25, duration: 30, imageUrl: '' },
-  { name: 'Design de Sobrancelha com Henna', description: 'Design com aplicação de henna para preenchimento e cor.', price: 35, duration: 45, imageUrl: '' },
+    { name: 'Manicure Simples', description: 'Cutilagem e esmaltação tradicional.', price: 30, duration: 60, imageUrl: '' },
+    { name: 'Alongamento em Fibra de Vidro', description: 'Técnica de alongamento que oferece um resultado natural e resistente.', price: 180, duration: 180, imageUrl: '' },
+    { name: 'Esmaltação em Gel', description: 'Esmalte com secagem em cabine UV para maior durabilidade e brilho.', price: 70, duration: 90, imageUrl: '' },
+    { name: 'Spa dos Pés', description: 'Tratamento completo com hidratação, esfoliação e massagem.', price: 60, duration: 75, imageUrl: '' },
+    { name: 'Nail Art Decorada', description: 'Decoração artística personalizada em uma ou mais unhas.', price: 45, duration: 90, imageUrl: '' },
+    { name: 'Manutenção de Alongamento', description: 'Manutenção periódica para garantir a beleza e saúde das unhas alongadas.', price: 100, duration: 120, imageUrl: '' },
 ];
 
 // Procedures

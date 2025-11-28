@@ -40,16 +40,12 @@ function ProceduresListSkeleton() {
 async function ProceduresData() {
   const procs = await getProcedures();
   const customOrder = [
-    'Volume Brasileiro',
-    'Volume Express',
-    'Volume Glamour',
-    'Volume Luxo',
-    'Manutenção Volume Brasileiro',
-    'Manutenção Volume Glamour',
-    'Manutenção Volume Luxo',
-    'Remoção',
-    'Design de Sobrancelha Simples',
-    'Design de Sobrancelha com Henna'
+    'Manicure Simples',
+    'Alongamento em Fibra de Vidro',
+    'Esmaltação em Gel',
+    'Spa dos Pés',
+    'Nail Art Decorada',
+    'Manutenção de Alongamento'
   ];
 
   const sortedProcedures = procs.sort((a, b) => {
