@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import ConditionalLayout from '@/components/ConditionalLayout';
 
 export const metadata = {
-  title: 'Lari Lash',
+  title: 'Studio Larissa Santos',
   description: 'Agende seu horário para procedimentos de cílios no studio Lari Lash.',
 };
 
