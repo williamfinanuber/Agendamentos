@@ -49,20 +49,20 @@ export default function ProceduresList({ procedures }: ProceduresListProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {procedures.map((procedure) => (
+          {procedures.map((procedure, index) => (
             <Card 
               key={procedure.id}
               onClick={() => handleProcedureSelect(procedure)}
               className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col"
             >
-              <CardHeader className="p-0">
+              <CardHeader className="p-0 relative aspect-video">
                 <Image
                   data-ai-hint="nail art"
-                  src={procedure.imageUrl || 'https://picsum.photos/600/400'}
+                  src={procedure.imageUrl || `https://picsum.photos/seed/${procedure.id.slice(0, 5)}/600/400`}
                   alt={procedure.name}
-                  width={600}
-                  height={400}
-                  className="rounded-t-lg aspect-video object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="rounded-t-lg object-cover"
                 />
               </CardHeader>
               <CardContent className="p-4 pb-2 flex-1">
