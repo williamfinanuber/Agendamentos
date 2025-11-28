@@ -177,7 +177,7 @@ function generateTimeSlots(startStr: string, endStr: string, interval: number): 
     let current = new Date(`1970-01-01T${startStr}:00`);
     const end = new Date(`1970-01-01T${endStr}:00`);
 
-    while (current <= end) { // Use <= to include the end time if it's a valid slot
+    while (current < end) { // Use < to exclude the end time
         slots.push(current.toTimeString().substring(0, 5));
         current.setMinutes(current.getMinutes() + interval);
     }
