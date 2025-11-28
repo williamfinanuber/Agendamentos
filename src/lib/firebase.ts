@@ -177,7 +177,7 @@ function generateTimeSlots(startStr: string, endStr: string, interval: number): 
     let current = new Date(`1970-01-01T${startStr}:00`);
     const end = new Date(`1970-01-01T${endStr}:00`);
 
-    while (current.getTime() < end.getTime()) {
+    while (current < end) {
         slots.push(current.toTimeString().substring(0, 5));
         current.setMinutes(current.getMinutes() + interval);
     }
@@ -313,6 +313,15 @@ export const getAvailabilityForProcedure = async (procedureId: string): Promise<
             const validStartSlots = allDaySlots.filter((startTime, index) => {
                 // Check if this slot itself is available
                 if (unavailableSlots.has(startTime)) {
+                    return false;
+                }
+                
+                // Check if the appointment finishes by the end of the day
+                const startSlotTime = new Date(`1970-01-01T${startTime}`);
+                const endSlotTime = new Date(startSlotTime.getTime() + procedureDuration * 60000);
+                const endOfDay = new Date(`1970-01-01T${settings.endTime}`);
+
+                if (endSlotTime > endOfDay) {
                     return false;
                 }
 
