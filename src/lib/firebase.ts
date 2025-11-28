@@ -127,7 +127,7 @@ export const deleteProcedure = async (id: string) => {
 const defaultSettings: AvailabilitySettings = {
   weekdays: [1, 2, 3, 4, 5], // Mon-Fri
   startTime: '08:00',
-  endTime: '20:30',
+  endTime: '18:00',
   slotInterval: 30,
   sundayScheduling: false,
   saturdayScheduling: true, // Saturday enabled by default
