@@ -20,8 +20,10 @@ async function ProceduresData() {
         'Manutenção Volume Brasileiro',
         'Manutenção Volume Glamour',
         'Manutenção Volume Luxo',
+        'Remoção',
         'Design de Sobrancelha Simples',
         'Design de Sobrancelha com Henna',
+        'Depilação de Buço',
     ];
 
     const sortedProcedures = procedures.sort((a, b) => {
