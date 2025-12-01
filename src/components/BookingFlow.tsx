@@ -265,11 +265,16 @@ function BookingFlowContent({ procedures, initialAvailability, existingBooking =
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
                       </div>
                     ) : availableTimes.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {availableTimes.map((time) => (
-                        <Button key={time} variant={selectedTime === time ? 'default' : 'outline'} onClick={() => setSelectedTime(time)}>{time}</Button>
-                      ))}
-                    </div>
+                    <Select onValueChange={(value) => setSelectedTime(value)} value={selectedTime ?? ''}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecione um horário" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availableTimes.map((time) => (
+                                <SelectItem key={time} value={time}>{time}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                   ) : (
                     <p className="text-muted-foreground">Não há horários disponíveis para esta data.</p>
                   )}
