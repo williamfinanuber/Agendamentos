@@ -39,6 +39,18 @@ const emptyProcedure: Omit<Procedure, 'id'> = {
   imageUrl: ''
 };
 
+const customOrder = [
+    'Volume Brasileiro',
+    'Volume Glamour',
+    'Volume Luxo',
+    'Volume Express',
+    'Manutenção Volume Brasileiro',
+    'Manutenção Volume Glamour',
+    'Manutenção Volume Luxo',
+    'Design de Sobrancelha Simples',
+    'Design de Sobrancelha com Henna',
+];
+
 export default function ProceduresClientPage({ initialProcedures }: ProceduresClientPageProps) {
   const [procedures, setProcedures] = useState<Procedure[]>(initialProcedures);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +64,17 @@ export default function ProceduresClientPage({ initialProcedures }: ProceduresCl
   const fetchProcedures = async () => {
     try {
       const procs = await getProcedures();
-      setProcedures(procs);
+      const sortedProcedures = procs.sort((a, b) => {
+        const indexA = customOrder.indexOf(a.name);
+        const indexB = customOrder.indexOf(b.name);
+
+        if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        
+        return indexA - indexB;
+      });
+      setProcedures(sortedProcedures);
     } catch (error) {
       console.error("Error fetching procedures: ", error);
       toast({ title: "Erro ao atualizar a lista de procedimentos", variant: 'destructive' });

@@ -6,12 +6,36 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
 
+
 export const dynamic = 'force-dynamic';
 
 async function ProceduresData() {
   try {
     const procedures = await getProcedures();
-    return <ProceduresClientPage initialProcedures={procedures} />;
+    const customOrder = [
+        'Volume Brasileiro',
+        'Volume Glamour',
+        'Volume Luxo',
+        'Volume Express',
+        'Manutenção Volume Brasileiro',
+        'Manutenção Volume Glamour',
+        'Manutenção Volume Luxo',
+        'Design de Sobrancelha Simples',
+        'Design de Sobrancelha com Henna',
+    ];
+
+    const sortedProcedures = procedures.sort((a, b) => {
+      const indexA = customOrder.indexOf(a.name);
+      const indexB = customOrder.indexOf(b.name);
+
+      if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      
+      return indexA - indexB;
+    });
+
+    return <ProceduresClientPage initialProcedures={sortedProcedures} />;
   } catch (e: any) {
       console.error("Firebase connection error:", e);
       let errorMessage = "Ocorreu um erro ao carregar os procedimentos.";
