@@ -50,15 +50,20 @@ async function ProceduresData() {
     'Remoção',
     'Design de Sobrancelha Simples',
     'Design de Sobrancelha com Henna',
-    'Depilação de Buço',
   ];
 
   const sortedProcedures = procs.sort((a, b) => {
+    const isADepilacao = a.name === 'Depilação de Buço';
+    const isBDepilacao = b.name === 'Depilação de Buço';
+
+    if (isADepilacao) return 1;
+    if (isBDepilacao) return -1;
+    
     const indexA = customOrder.indexOf(a.name);
     const indexB = customOrder.indexOf(b.name);
 
-    if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name);
-    if (indexA === -1) return 1;
+    if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name); // fallback for unlisted
+    if (indexA === -1) return 1;  // put unlisted items at the end
     if (indexB === -1) return -1;
     
     return indexA - indexB;

@@ -23,10 +23,15 @@ async function ProceduresData() {
         'Remoção',
         'Design de Sobrancelha Simples',
         'Design de Sobrancelha com Henna',
-        'Depilação de Buço',
     ];
 
     const sortedProcedures = procedures.sort((a, b) => {
+      const isADepilacao = a.name === 'Depilação de Buço';
+      const isBDepilacao = b.name === 'Depilação de Buço';
+
+      if (isADepilacao) return 1;
+      if (isBDepilacao) return -1;
+
       const indexA = customOrder.indexOf(a.name);
       const indexB = customOrder.indexOf(b.name);
 
