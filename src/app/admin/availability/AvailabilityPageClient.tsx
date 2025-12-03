@@ -141,7 +141,7 @@ export default function AvailabilityPageClient({ initialSettings, initialAvailab
                   </Link>
               </Button>
               <CardTitle className="text-xl md:text-2xl">
-                  Configurações de Disponibilidade
+                  Disponibilidade
               </CardTitle>
           </div>
           <CardDescription className="pt-2 text-sm md:text-base">
