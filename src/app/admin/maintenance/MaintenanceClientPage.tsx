@@ -161,7 +161,7 @@ export default function MaintenanceClientPage({ initialBookings }: MaintenanceCl
                     Voltar
                 </Link>
             </Button>
-            <CardTitle className="text-xl md:text-2xl">Manutenção e Configurações</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">Manutenção</CardTitle>
         </div>
         <CardDescription className="pt-2 text-sm md:text-base">
           Encontre clientes que estão no período de fazer a manutenção com base na data do último atendimento concluído.
@@ -296,4 +296,5 @@ export default function MaintenanceClientPage({ initialBookings }: MaintenanceCl
   );
 }
 
+    
     
