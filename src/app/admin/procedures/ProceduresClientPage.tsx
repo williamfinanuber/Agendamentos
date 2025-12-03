@@ -238,7 +238,6 @@ export default function ProceduresClientPage({ initialProcedures }: ProceduresCl
               </Button>
               <div className="flex-1">
                  <CardTitle className="text-xl md:text-2xl">Procedimentos</CardTitle>
-                 <CardDescription className="text-sm pt-2">Gerencie os procedimentos oferecidos no studio.</CardDescription>
               </div>
                <Button size="sm" className="gap-1 flex-shrink-0" onClick={() => openDialog()}>
                   <PlusCircle className="h-4 w-4" />
